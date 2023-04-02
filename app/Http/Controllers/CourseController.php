@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class CourseController extends Controller
 {
@@ -123,5 +124,39 @@ class CourseController extends Controller
             array_push($result, $course);
         }
         return $result;
+    }
+
+    public function elasticSearch(Request $request){
+        $query = $request->all()['q'];
+        $client = ClientBuilder::create()
+            ->setHosts(['localhost:9200'])
+            ->build();
+        
+        // $params = [
+        //     'index' => 'test',
+        //     'body' => [
+        //         'query' => [
+        //             'match' => [
+        //                 'name' => $query
+        //             ]
+        //         ]
+        //     ]
+        // ];
+
+        $params = [
+            'index' => 'test',
+            'body' => [
+                'query' => [
+                    'fuzzy' => [
+                        'name' => [
+                            'value' => $query
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $result = $client->search($params);
+        dd($result['hits']);
     }
 }

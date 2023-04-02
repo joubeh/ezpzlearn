@@ -64,3 +64,7 @@ Route::post('/dashboard/chapter/{chapter}/session/create', [DashboardController:
 Route::post('/dashboard/session/{session}/remove', [DashboardController::class, 'removeSession'])->middleware(['auth', 'dashboard']);
 Route::post('/dashboard/course/{course}/change-status', [DashboardController::class, 'changeCourseStatus'])->middleware(['auth', 'dashboard']);
 Route::post('/dashboard/course/{course}/update', [DashboardController::class, 'updateCourse'])->middleware(['auth', 'dashboard']);
+
+
+/* DEV */
+Route::get('/elastic-search', [CourseController::class, 'elasticSearch']);
