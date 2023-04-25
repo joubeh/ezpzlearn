@@ -3,6 +3,7 @@ import React from "react";
 import CourseCard from "../../components/CourseCard";
 import Layout from "../../components/Layout";
 import { FiArrowRightCircle, FiArrowLeftCircle } from 'react-icons/fi'
+import CoursesFilter from "../../components/CoursesFilter";
 
 
 const Courses = () => {
@@ -10,6 +11,7 @@ const Courses = () => {
     
     return (
         <Layout>
+            <CoursesFilter />
             <div className="md:px-4 md:grid md:grid-cols-2 lg:grid-cols-4 gap-5 space-y-4 md:space-y-0">
                 {courses.data.map(course => <CourseCard key={course.id} course={course}/>)}
             </div>

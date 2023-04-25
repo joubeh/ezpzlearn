@@ -19,7 +19,9 @@ Route::post('/login', [AuthController::class, 'login'])->middleware(['guest']);
 Route::get('/register', [AuthController::class, 'registerPage'])->middleware(['guest']);
 Route::post('/register', [AuthController::class, 'register'])->middleware(['guest']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth'])->name('logout');
-// todo: forget password
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware(['guest'])->name('password.email');
+Route::get('/reset-password/{token}', [AuthController::class, 'resetPasswordPage'])->middleware('guest')->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('guest')->name('password.update');
 
 
 /* Course */
@@ -64,7 +66,3 @@ Route::post('/dashboard/chapter/{chapter}/session/create', [DashboardController:
 Route::post('/dashboard/session/{session}/remove', [DashboardController::class, 'removeSession'])->middleware(['auth', 'dashboard']);
 Route::post('/dashboard/course/{course}/change-status', [DashboardController::class, 'changeCourseStatus'])->middleware(['auth', 'dashboard']);
 Route::post('/dashboard/course/{course}/update', [DashboardController::class, 'updateCourse'])->middleware(['auth', 'dashboard']);
-
-
-/* DEV */
-Route::get('/elastic-search', [CourseController::class, 'elasticSearch']);

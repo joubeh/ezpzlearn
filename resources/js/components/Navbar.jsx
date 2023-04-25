@@ -25,7 +25,7 @@ const Navbar = () => {
     >
     <div>
         <Link href="/">
-            PLACE APP LOGO AND NAME
+            <img src="/assets/logo.jpg" alt="ezpzlearn" className="h-10"/>
         </Link>
         </div>
     

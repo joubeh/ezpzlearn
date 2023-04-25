@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -74,6 +77,49 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::logout();
+        return redirect('/');
+    }
+
+    public function forgotPassword(Request $request){
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if($status === Password::RESET_LINK_SENT) {
+            return Inertia::render('Auth/Login', ['flash' => "لینک تغییر رمز برای شما ایمیل شد", 'flashType' => "SUCCESS"]);
+        }
+        return Inertia::render('Auth/Login', ['flash' => "ایمیل پیدا نشد", 'flashType' => "ERROR"]);
+    }
+
+    public function resetPasswordPage(Request $request, $token){
+        return Inertia::render('Auth/ResetPassword', ['token' => $token, 'email' => $request->query('email', 'NO_EMAIL')]);
+    }
+
+    public function resetPassword(Request $request){
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed',
+        ]);
+     
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+     
+                $user->save();
+            }
+        );
+     
+        if($status === Password::PASSWORD_RESET){
+            return Inertia::render('Auth/Login', ['flash' => "رمزعبور تغییر کرد", 'flashType' => "SUCCESS"]);
+        }
         return redirect('/');
     }
 }

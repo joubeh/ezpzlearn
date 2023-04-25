@@ -27,7 +27,7 @@ const OverlayNavbar = () => {
     >
     <div>
         <a href="/">
-            PLACE APP LOGO AND NAME
+            <img src="/assets/logo.jpg" alt="ezpzlearn" className="h-10"/>
         </a>
         </div>
     

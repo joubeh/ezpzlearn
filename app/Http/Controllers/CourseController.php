@@ -26,6 +26,10 @@ class CourseController extends Controller
         return Inertia::render('Course/Courses', ['courses' => $courses]);
     }
 
+    private function advancedSearchCourse($query, $filters){
+        
+    }
+
     public function show(Request $request, $slug)
     {
         $newComment = false;
@@ -109,42 +113,9 @@ class CourseController extends Controller
 
     public function search(Request $request){
         $query = $request->all()['q'];
-        $courses = Course::where('name', 'LIKE', "%$query%")->with('instructors')->get();
-        $result = [];
-        foreach($courses as $c){
-            $course = [
-                'id' => $c->id,
-                'slug' => $c->slug,
-                'name' => $c->name,
-                'instructors' => []
-            ];
-            foreach($c->instructors as $i){
-                array_push($course['instructors'], ['id' => $i->id, 'name' => $i->name]);
-            }
-            array_push($result, $course);
-        }
-        return $result;
-    }
-
-    public function elasticSearch(Request $request){
-        $query = $request->all()['q'];
-        $client = ClientBuilder::create()
-            ->setHosts(['localhost:9200'])
-            ->build();
-        
-        // $params = [
-        //     'index' => 'test',
-        //     'body' => [
-        //         'query' => [
-        //             'match' => [
-        //                 'name' => $query
-        //             ]
-        //         ]
-        //     ]
-        // ];
-
+        $client = ClientBuilder::create()->setHosts([env('ELASTIC_SEARCH_HOST').':'.env('ELASTIC_SEARCH_PORT')])->build();
         $params = [
-            'index' => 'test',
+            'index' => 'course',
             'body' => [
                 'query' => [
                     'fuzzy' => [
@@ -155,8 +126,36 @@ class CourseController extends Controller
                 ]
             ]
         ];
-
         $result = $client->search($params);
-        dd($result['hits']);
+        $res = [];
+        foreach($result['hits']['hits'] as $r){
+            array_push($res, [
+                'id' => $r['_id'],
+                'name' => $r['_source']['name'],
+                'slug' => $r['_source']['slug'],
+                'instructors' => $r['_source']['instructors'],
+            ]);
+        }
+        return $res;
     }
+
+    /* Search without elastic */
+    // public function search(Request $request){
+    //     $query = $request->all()['q'];
+    //     $courses = Course::where('name', 'LIKE', "%$query%")->with('instructors')->get();
+    //     $result = [];
+    //     foreach($courses as $c){
+    //         $course = [
+    //             'id' => $c->id,
+    //             'slug' => $c->slug,
+    //             'name' => $c->name,
+    //             'instructors' => []
+    //         ];
+    //         foreach($c->instructors as $i){
+    //             array_push($course['instructors'], ['id' => $i->id, 'name' => $i->name]);
+    //         }
+    //         array_push($result, $course);
+    //     }
+    //     return $result;
+    // }
 }

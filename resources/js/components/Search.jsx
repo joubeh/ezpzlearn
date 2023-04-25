@@ -104,9 +104,9 @@ const Search = () => {
 const SearchResultItem = (props) => {
   return (
     <Link href={`/course/${props.course.slug}`}>
-      <div className="p-2 px-4 m-1 border-2 shadow-inner rounded-lg hover:bg-violet-300 transition-all">
+      <div className="p-2 px-4 m-1 border-2 shadow-inner rounded-lg hover:bg-violet-300 transition-all hover:border-r-4 hover:border-violet-600">
         <div>{props.course.name}</div>
-        <div className="text-gray-600 text-sm mt-1">{props.course.instructors.map((i, idx, is) => <span key={i.id}>{idx != 0 && ', '}{i.name}</span>)}</div>
+        <div className="text-gray-600 text-sm mt-1">{props.course.instructors.map((i, idx, is) => <span>{idx != 0 && ', '}{i}</span>)}</div>
       </div>
     </Link>
   )

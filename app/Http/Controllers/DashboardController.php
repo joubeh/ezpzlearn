@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class DashboardController extends Controller
 {
@@ -137,7 +138,46 @@ class DashboardController extends Controller
         for ($i=0; $i<count($instructors); $i++) $instructors[$i] = $instructors[$i]['value'];
         $course->instructors()->attach($instructors);
 
+        $this->indexForSearch($course);
+
         return redirect('/dashboard/course'.$course->id.'/content');
+    }
+
+    private function indexForSearch($course){
+        $IS = $course->instructors;
+        $instructors = [];
+        foreach($IS as $I){
+            array_push($instructors, $I->name);
+        }
+        $client = ClientBuilder::create()->setHosts([env('ELASTIC_SEARCH_HOST').':'.env('ELASTIC_SEARCH_PORT')])->build();
+        $params = [
+            'index' => 'course',
+            'id' => $course->id,
+            'body' => [
+                'topic' => $course->topic->name,
+                'instructors' => $instructors,
+                'name' => $course->name,
+                'slug' => $course->slug,
+                'summery' => $course->summery,
+                'description' => $course->description,
+                'language' => $course->language,
+                'what_you_will_learn' => $course->what_you_will_learn,
+                'publisher' => $course->publisher,
+                'videos_length' => "0:0:0",
+                'level' => $course->level,
+                'stars' => $course->stars,
+            ]
+        ];
+        $client->index($params);
+    }
+
+    private function removeIndex($course){
+        $client = ClientBuilder::create()->setHosts([env('ELASTIC_SEARCH_HOST').':'.env('ELASTIC_SEARCH_PORT')])->build();
+        $params = [
+            'index' => 'course',
+            'id' => $course->id
+        ];
+        $client->delete($params);
     }
 
     public function createTopic(Request $request){
@@ -289,6 +329,8 @@ class DashboardController extends Controller
         $instructors = $request->all()['instructors'];
         for ($i=0; $i<count($instructors); $i++) $instructors[$i] = $instructors[$i]['value'];
         $course->instructors()->sync($instructors);
+
+        $this->indexForSearch($course);
 
         if($course->status == 'hidden') {
             return redirect()->back();
