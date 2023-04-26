@@ -1,5 +1,5 @@
 import { Link, usePage, router } from "@inertiajs/react";
-import React, {useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 import OverlayNavbar from "../../components/OverlayNavbar";
 import Rating from '../../components/Rating'
 import { BsFillBookmarkPlusFill, BsPlayCircleFill, BsFillPersonFill, BsBookmarkDashFill } from 'react-icons/bs'
@@ -7,11 +7,21 @@ import { MdPreview } from 'react-icons/md'
 import CourseContent from "../../components/CourseContent";
 import Comment from "../../components/Comment";
 import htmr from 'htmr';
+import { Dialog, Transition } from '@headlessui/react'
 
 
 const Courses = () => {
     const {course, alreadyStarted, addedToLearnLater, comments, auth, newComment} = usePage().props
-    
+    let [isOpen, setIsOpen] = useState(false)
+
+    function closeModal() {
+        setIsOpen(false)
+    }
+
+    function openModal() {
+        setIsOpen(true)
+    }
+
     const [values, setValues] = useState({
         text: "",
     })
@@ -81,10 +91,52 @@ const Courses = () => {
                                         بعدا یاد بگیر
                                     </Link>
                             }
-                            <button className="bg-violet-600 p-2 px-6 text-center flex items-center justify-center gap-2">
+                            <button onClick={openModal} className="bg-violet-600 p-2 px-6 text-center flex items-center justify-center gap-2">
                                 <MdPreview />
                                 پیش نمایش
                             </button>
+
+                            <Transition appear show={isOpen} as={Fragment}>
+                                <Dialog as="div" className="relative z-10" onClose={closeModal}>
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0"
+                                    enterTo="opacity-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                    <div className="fixed inset-0 bg-black bg-opacity-25" />
+                                </Transition.Child>
+
+                                <div className="fixed inset-0 overflow-y-auto">
+                                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                    <Transition.Child
+                                        as={Fragment}
+                                        enter="ease-out duration-300"
+                                        enterFrom="opacity-0 scale-95"
+                                        enterTo="opacity-100 scale-100"
+                                        leave="ease-in duration-200"
+                                        leaveFrom="opacity-100 scale-100"
+                                        leaveTo="opacity-0 scale-95"
+                                    >
+                                        <Dialog.Panel className="transform overflow-hidden rounded-2xl bg-white p-2 text-right align-middle shadow-xl transition-all">
+                                        
+                                        <div className="mt-2">
+                                            <video controls className="h-80">
+                                                <source src={course.preview_video} type="video/mp4"/>
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                        </Dialog.Panel>
+                                    </Transition.Child>
+                                    </div>
+                                </div>
+                                </Dialog>
+                            </Transition>
+
+
                         </div>
                     </div>
                 </div>

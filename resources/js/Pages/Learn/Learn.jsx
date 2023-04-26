@@ -12,7 +12,7 @@ const Learn = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
                 <div className="lg:col-span-3 bg-white p-3 rounded-lg shadow-lg">
                     <video controls>
-                        <source src="http://localhost:2280/s3/video.mp4" type="video/mp4"/>
+                        <source src={current_session.url} type="video/mp4"/>
                         Your browser does not support the video tag.
                     </video>
                 </div>
