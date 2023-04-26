@@ -17,17 +17,53 @@ class CourseController extends Controller
 {
     public function courses(Request $request)
     {
-        if(in_array('topic', $request->keys())){
-            $topic = Topic::where('name', $request->topic)->firstOrFail();
-            $courses = Course::where('topic_id', $topic->id)->where('status', 'available')->orderBy('id', 'DESC')->with('instructors')->paginate(20)->withQueryString();
+        if(in_array('search', $request->keys())){
+            $filters = [];
+            if(in_array('topic', $request->keys())){
+                array_push($filters, ["match" => ["topic" => $request->all()['topic']]]);
+            }
+            $coursesIds = $this->advancedSearchCourse($request->all()['search'], $filters);
+            $courses = Course::whereIn('id', $coursesIds)->with('instructors')->where('status', 'available')->orderBy('id', 'DESC')->paginate(20)->withQueryString();
         } else {
-            $courses = Course::with('instructors')->where('status', 'available')->orderBy('id', 'DESC')->paginate(20)->withQueryString();
+            if(in_array('topic', $request->keys())){
+                $topic = Topic::where('name', $request->topic)->firstOrFail();
+                $courses = Course::where('topic_id', $topic->id)->where('status', 'available')->orderBy('id', 'DESC')->with('instructors')->paginate(20)->withQueryString();
+            } else {
+                $courses = Course::with('instructors')->where('status', 'available')->orderBy('id', 'DESC')->paginate(20)->withQueryString();
+            }
         }
         return Inertia::render('Course/Courses', ['courses' => $courses]);
     }
 
     private function advancedSearchCourse($query, $filters){
-        
+        $client = ClientBuilder::create()->setHosts([env('ELASTIC_SEARCH_HOST').':'.env('ELASTIC_SEARCH_PORT')])->build();
+        $mustParams = [
+            [
+                "multi_match" => [
+                    "query" => $query,
+                    "fields" => [ "name", "summery", "description", "what_you_will_learn" ]
+                ]
+            ]
+        ];
+        foreach($filters as $filter){
+            array_push($mustParams, $filter);
+        }
+        $params = [
+            'index' => 'course',
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'must' => $mustParams
+                    ]
+                ]
+            ]
+        ];
+        $result = $client->search($params);
+        $res = [];
+        foreach($result['hits']['hits'] as $r){
+            array_push($res, $r['_id']);
+        }
+        return $res;
     }
 
     public function show(Request $request, $slug)
