@@ -39,6 +39,8 @@ Route::get('/learn/{slug}', [LearnController::class, 'learn']);
 
 /* Account */
 Route::get('/my-account', [AccountController::class, 'myAccount'])->middleware(['auth']);
+Route::post('/my-account/name/update', [AccountController::class, 'updateName'])->middleware(['auth']);
+Route::post('/my-account/password/update', [AccountController::class, 'updatePassword'])->middleware(['auth']);
 Route::get('/my-account/courses', [AccountController::class, 'myCourses'])->middleware(['auth']);
 Route::get('/plus', [AccountController::class, 'plus'])->middleware(['auth']);
 Route::get('/plus/check-discount-code/{code}/{user}', [AccountController::class, 'checkDiscountCode'])->middleware(['auth']);

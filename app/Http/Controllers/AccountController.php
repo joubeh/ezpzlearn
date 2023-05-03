@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 use function GuzzleHttp\Promise\all;
@@ -20,7 +21,37 @@ use function GuzzleHttp\Promise\all;
 class AccountController extends Controller
 {
     public function myAccount() {
-        return Inertia::render('Account/MyAccount');
+        return Inertia::render('Account/MyAccount', ['userName' => Auth::user()->name]);
+    }
+
+    public function updateName(Request $request){
+        if(!array_key_exists('name', $request->all())){
+            return Inertia::render('Account/MyAccount', ['flash' => "نام نباید خالی باشد", 'flashType' => "ERROR", 'userName' => Auth::user()->name]);
+        }
+
+        Auth::user()->name = $request->all()['name'];
+        Auth::user()->save();
+        return Inertia::render('Account/MyAccount', ['flash' => "نام شما تغییر کرد", 'flashType' => "SUCCESS", 'userName' => Auth::user()->name]);
+    }
+
+    public function updatePassword(Request $request){
+        if(!array_key_exists('old_password', $request->all())){
+            return Inertia::render('Account/MyAccount', ['flash' => "رمز فعلی نباید خالی باشد", 'flashType' => "ERROR", 'userName' => Auth::user()->name]);
+        } else {
+            if(!Hash::check($request->all()['old_password'], Auth::user()->password)){
+                return Inertia::render('Account/MyAccount', ['flash' => "رمز فعلی درست نیست", 'flashType' => "ERROR", 'userName' => Auth::user()->name]);
+            }
+        }
+        if(!array_key_exists('password', $request->all())){
+            return Inertia::render('Account/MyAccount', ['flash' => "رمزعبور نباید خالی باشد", 'flashType' => "ERROR", 'userName' => Auth::user()->name]);
+        }
+        if(!array_key_exists('password_confirmation', $request->all()) || $request->all()['password_confirmation'] != $request->all()['password']){
+            return Inertia::render('Account/MyAccount', ['flash' => "رمزعبور با تکرار آن یکی نیست", 'flashType' => "ERROR", 'userName' => Auth::user()->name]);
+        }
+
+        Auth::user()->password = Hash::make($request->all()['password']);
+        Auth::user()->save();
+        return Inertia::render('Account/MyAccount', ['flash' => "رمز شما تغییر کرد", 'flashType' => "SUCCESS", 'userName' => Auth::user()->name]);
     }
 
     public function myCourses() {
