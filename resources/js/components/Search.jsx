@@ -4,7 +4,7 @@ import { BsSearch } from 'react-icons/bs'
 import { Link } from "@inertiajs/react";
 
 
-const Search = () => {
+const Search = (props) => {
   let [isOpen, setIsOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [courses, setCourses] = useState([])
