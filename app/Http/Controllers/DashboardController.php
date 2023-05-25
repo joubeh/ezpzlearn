@@ -6,9 +6,11 @@ use App\Models\Chapter;
 use App\Models\Comment;
 use App\Models\Course;
 use App\Models\Instructor;
+use App\Models\PlusSubscription;
 use App\Models\Session;
 use App\Models\Topic;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +20,12 @@ use Elastic\Elasticsearch\ClientBuilder;
 class DashboardController extends Controller
 {
     public function index(){
-        return Inertia::render('Dashboard/Index');
+        return Inertia::render('Dashboard/Index', [
+            'newCommentsCount' => count(Comment::where('status', 'pending')->get()),
+            'usersCount' => count(User::all()),
+            'coursesCount' => count(Course::all()),
+            'thisMonthPlusCount' => count(PlusSubscription::whereMonth('created_at', Carbon::now()->month)->get())
+        ]);
     }
 
     public function comments(){
