@@ -164,7 +164,7 @@ const Courses = () => {
                     </div>
                     <div className="bg-white p-5 rounded-lg shadow-lg mb-3">
                         <div>زبان : {course.language}</div>
-                        <div>آخرین بروزرسانی : {course.updated_at}</div>
+                        <div>آخرین بروزرسانی : {course.updated_at.split('T')[0]}</div>
                         <div>طول دوره : {course.videos_length}</div>
                         <div>ناشر : {course.publisher} - <a href={course.course_link} className="text-blue-500" target="_blank">لینک دوره</a></div>
                         <div>سطح : {course.level}</div>

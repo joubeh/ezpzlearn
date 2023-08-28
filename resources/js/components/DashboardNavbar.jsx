@@ -22,8 +22,8 @@ const DashboardNavbar = () => {
         "
     >
     <div>
-        <Link href="/dashboard">
-            PLACE APP LOGO AND NAME
+        <Link href="/">
+            <img src="/assets/logo.jpg" alt="ezpzlearn" className="h-10"/>
         </Link>
         </div>
     
