@@ -19,3 +19,18 @@ Online video learning platform made with `Laravel` + `React` (and many other tec
 - Run frontend server: `npm run dev`
 - Run backend server: `php artisan serve`
 - Application is running and ready to use on: `http://127.0.0.1:8000`
+
+# Web Scrapper
+
+Web scrapper is in webscrapper folder to use it you need:
+
+- Python 3.11
+
+first you need to install required packages
+
+- `pip install selenium`
+- `pip install mysql`
+
+then set database credentials in `app.py`
+then download and paste selenium chromedriver in the webscrapper folder
+and to run the app just simply run: `python app.py`
